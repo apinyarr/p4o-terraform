@@ -13,7 +13,7 @@ module "vpc" {
   create_igw = false
 
   tags = {
-    Name = "pamelo-vpc"
+    Terraform = "true"
     Environment = "prd"
   }
 }
