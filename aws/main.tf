@@ -18,12 +18,25 @@
 #   }
 # }
 
+module "user_dlq" {
+  source  = "terraform-aws-modules/sqs/aws"
+  version = "~> 2.0"
+
+  name = "demo-dlq"
+
+  tags = {
+    Service     = "demo-dlq"
+    Environment = "prd"
+  }
+}
+
 module "user_queue" {
   source  = "terraform-aws-modules/sqs/aws"
   version = "~> 2.0"
 
   name = "demo-queue"
   redrive_policy = jsonencode({
+    deadLetterTargetArn = "${module.user_dlq.this_sqs_queue_arn}"
     maxReceiveCount = 3
   })
 
