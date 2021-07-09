@@ -45,3 +45,20 @@ module "user_queue" {
     Environment = "prd"
   }
 }
+
+module "lambda_function" {
+  source = "./modules/terraform-aws-lambda"
+
+  function_name = "function-publish-messages"
+  description   = "Publish message to SQS"
+  handler       = "index.lambda_handler"
+  runtime       = "python3.8"
+
+  source_path = "../src/message"
+
+  lambda_role = "arn:aws:iam::125065023022:user/Producer"
+
+  tags = {
+    Name = "publish-message-lambda"
+  }
+}
