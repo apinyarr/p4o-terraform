@@ -54,7 +54,7 @@ module "lambda_function" {
   handler       = "index.lambda_handler"
   runtime       = "python3.8"
 
-  source_path = "src/message"
+  source_path = "src/python/message"
 
   lambda_role = "arn:aws:iam::125065023022:user/Producer"
 
