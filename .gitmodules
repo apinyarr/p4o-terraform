@@ -1,3 +1,6 @@
 [submodule "aws/modules/terraform-aws-lamda"]
 	path = aws/modules/terraform-aws-lamda
 	url = git@github.com:terraform-aws-modules/terraform-aws-lambda.git
+[submodule "aws/modules/terraform-aws-sqs"]
+	path = aws/modules/terraform-aws-sqs
+	url = git@github.com:terraform-aws-modules/terraform-aws-sqs.git
