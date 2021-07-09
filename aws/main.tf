@@ -1,5 +1,5 @@
 # module "vpc" {
-#   source = "./modules/terraform-aws-vpc"
+#   source = "terraform-aws-modules/vpc/aws"
 
 #   name = "pamelo-vpc"
 #   cidr = "10.0.0.0/16"
@@ -19,7 +19,7 @@
 # }
 
 module "user_dlq" {
-  source  = "./modules/terraform-aws-sqs"
+  source  = "terraform-aws-modules/sqs/aws"
   version = "~> 2.0"
 
   name = "demo-dlq"
@@ -31,7 +31,7 @@ module "user_dlq" {
 }
 
 module "user_queue" {
-  source  = "./modules/terraform-aws-sqs"
+  source  = "terraform-aws-modules/sqs/aws"
   version = "~> 2.0"
 
   name = "demo-queue"
@@ -47,7 +47,7 @@ module "user_queue" {
 }
 
 module "lambda_function" {
-  source = "./modules/terraform-aws-lambda"
+  source = "terraform-aws-modules/lambda/aws"
 
   function_name = "function-publish-messages"
   description   = "Publish message to SQS"
