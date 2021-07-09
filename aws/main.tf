@@ -19,7 +19,7 @@
 # }
 
 module "user_dlq" {
-  source  = "terraform-aws-modules/sqs/aws"
+  source  = "./modules/terraform-aws-sqs"
   version = "~> 2.0"
 
   name = "demo-dlq"
@@ -31,7 +31,7 @@ module "user_dlq" {
 }
 
 module "user_queue" {
-  source  = "terraform-aws-modules/sqs/aws"
+  source  = "./modules/terraform-aws-sqs"
   version = "~> 2.0"
 
   name = "demo-queue"
