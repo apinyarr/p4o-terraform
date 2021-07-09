@@ -1,0 +1,3 @@
+[submodule "aws/modules/terraform-aws-lamda"]
+	path = aws/modules/terraform-aws-lamda
+	url = git@github.com:terraform-aws-modules/terraform-aws-lambda.git
