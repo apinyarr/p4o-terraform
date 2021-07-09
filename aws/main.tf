@@ -23,7 +23,9 @@ module "user_queue" {
   version = "~> 2.0"
 
   name = "demo-queue"
-  redrive_policy = "3"
+  redrive_policy = jsonencode({
+    maxReceiveCount = 3
+  })
 
   tags = {
     Service     = "demo-queue"
