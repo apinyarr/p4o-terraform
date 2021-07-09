@@ -23,6 +23,7 @@ module "user_queue" {
   version = "~> 2.0"
 
   name = "demo-queue"
+  redrive_policy = "3"
 
   tags = {
     Service     = "demo-queue"
