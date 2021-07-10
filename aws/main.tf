@@ -23,6 +23,7 @@ module "user_dlq" {
   version = "~> 2.0"
 
   name = "demo-dlq"
+  create = "${vars.create_sqs}"
 
   tags = {
     Service     = "demo-dlq"
@@ -35,6 +36,7 @@ module "user_queue" {
   version = "~> 2.0"
 
   name = "demo-queue"
+  create = "${vars.create_sqs}"
   redrive_policy = jsonencode({
     deadLetterTargetArn = "${module.user_dlq.this_sqs_queue_arn}"
     maxReceiveCount = 3
@@ -53,6 +55,8 @@ module "lambda_function" {
   description   = "Publish message to SQS"
   handler       = "message.lambda_handler"
   runtime       = "python3.8"
+
+  create = "${vars.create_lamda1}"
 
   source_path = "src/python/publish-message-function/message.py"
 
