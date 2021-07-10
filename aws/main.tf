@@ -49,9 +49,9 @@ module "user_queue" {
 module "lambda_function" {
   source = "terraform-aws-modules/lambda/aws"
 
-  function_name = "function-publish-messages"
+  function_name = "publish-messages-function"
   description   = "Publish message to SQS"
-  handler       = "message.lambda_handler"
+  handler       = "lambda_function.lambda_handler"
   runtime       = "python3.8"
 
   source_path = "src/python/message"
