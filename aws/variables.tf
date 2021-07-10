@@ -3,3 +3,15 @@ variable "region" {
     type = string
     default = "ap-southeast-1"
 }
+
+variable "create_sqs" {
+    description = "option to provision sqs"
+    type = bool
+    default = true
+}
+
+variable "create_lambda1" {
+    description = "option to provision sqs"
+    type = bool
+    default = true
+}
