@@ -51,7 +51,7 @@ module "lambda_function" {
 
   function_name = "publish-messages-function"
   description   = "Publish message to SQS"
-  handler       = "lambda_function.lambda_handler"
+  handler       = "message.lambda_handler"
   runtime       = "python3.8"
 
   source_path = "src/python/publish-message-function/message.py"
