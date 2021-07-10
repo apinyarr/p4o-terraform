@@ -56,7 +56,7 @@ module "lambda_function" {
   handler       = "message.lambda_handler"
   runtime       = "python3.8"
 
-  create = var.create_lamda1
+  create = var.create_lambda1
 
   source_path = "src/python/publish-message-function/message.py"
 
