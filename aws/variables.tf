@@ -11,7 +11,13 @@ variable "create_sqs" {
 }
 
 variable "create_lambda1" {
-    description = "option to provision sqs"
+    description = "option to provision lambda1"
+    type = bool
+    default = true
+}
+
+variable "create_apigw" {
+    description = "option to provision apigw"
     type = bool
     default = true
 }
