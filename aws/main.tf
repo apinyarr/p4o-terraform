@@ -59,7 +59,7 @@ module "lambda_function" {
   create = var.create_lambda1
 
   source_path = "src/python/publish-message-function/message.py"
-
+  create_role = false
   lambda_role = "arn:aws:iam::125065023022:role/p4o-lamda-sqs-cloudwatch"
 
   tags = {
