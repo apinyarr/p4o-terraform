@@ -54,7 +54,7 @@ module "lambda_function" {
   handler       = "lambda_function.lambda_handler"
   runtime       = "python3.8"
 
-  source_path = "src/python/message"
+  source_path = "src/python/publish-message-function"
 
   lambda_role = "arn:aws:iam::125065023022:user/Producer"
 
