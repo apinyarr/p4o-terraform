@@ -3,7 +3,9 @@ import json
 
 def lambda_handler(event, context):
 
-    sqs = boto3.resource('sqs')
+    # sqs = boto3.resource('sqs')
+
+    sqs = boto3.client('sqs', region_name="ap-southeast-1")
 
     queue = sqs.get_queue_by_name(QueueName='demo-queue')
 
