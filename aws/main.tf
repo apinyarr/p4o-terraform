@@ -115,6 +115,8 @@ module "api_gateway" {
     }
   }
 
+  disable_execute_api_endpoint = true
+
   tags = {
     Name = "http-apigateway"
   }
