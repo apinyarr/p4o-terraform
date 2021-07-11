@@ -96,16 +96,19 @@ module "api_gateway" {
       lambda_arn             = "${module.lambda_function.lambda_function_arn}"
       payload_format_version = "2.0"
       timeout_milliseconds   = 12000
+      credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw-lambda"
     }
 
     "POST /success" = {
       lambda_arn             = "${module.lambda_function.lambda_function_arn}"
       payload_format_version = "2.0"
       timeout_milliseconds   = 12000
+      credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw-lambda"
     }
 
     "$default" = {
       lambda_arn = "${module.lambda_function.lambda_function_arn}"
+      credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw-lambda"
     }
   }
 
