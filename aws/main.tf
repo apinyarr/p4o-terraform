@@ -98,7 +98,7 @@ module "api_gateway" {
       timeout_milliseconds   = 12000
     }
 
-    "$default" = {
+    "POST /" = {
       lambda_arn = "${module.lambda_function.lambda_function_arn}"
     }
   }
