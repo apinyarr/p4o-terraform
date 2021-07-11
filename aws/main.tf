@@ -98,7 +98,13 @@ module "api_gateway" {
       timeout_milliseconds   = 12000
     }
 
-    "POST /" = {
+    "POST /success" = {
+      lambda_arn             = "${module.lambda_function.lambda_function_arn}"
+      payload_format_version = "2.0"
+      timeout_milliseconds   = 12000
+    }
+
+    "$default" = {
       lambda_arn = "${module.lambda_function.lambda_function_arn}"
     }
   }
