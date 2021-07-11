@@ -97,7 +97,7 @@ module "api_gateway" {
       payload_format_version = "2.0"
       timeout_milliseconds   = 12000
       credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw-lambda"
-      authorization_type = "AWS_IAM"
+      authorization_type = "IAM"
       authorizer_id = "p4o-api-callers"
     }
 
@@ -106,14 +106,14 @@ module "api_gateway" {
       payload_format_version = "2.0"
       timeout_milliseconds   = 12000
       credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw-lambda"
-      authorization_type = "AWS_IAM"
+      authorization_type = "IAM"
       authorizer_id = "p4o-api-callers"
     }
 
     "$default" = {
       lambda_arn = "${module.lambda_function.lambda_function_arn}"
       credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw-lambda"
-      authorization_type = "AWS_IAM"
+      authorization_type = "IAM"
       authorizer_id = "p4o-api-callers"
     }
   }
