@@ -70,7 +70,7 @@ module "lambda_function" {
 module "api_gateway" {
   source = "terraform-aws-modules/apigateway-v2/aws"
 
-  name          = "dev-http"
+  name          = "prd-http"
   create        = var.create_apigw
   description   = "My awesome HTTP API Gateway"
   protocol_type = "HTTP"
@@ -98,7 +98,7 @@ module "api_gateway" {
       timeout_milliseconds   = 12000
     }
 
-    "POST /" = {
+    "$default" = {
       lambda_arn = "${module.lambda_function.lambda_function_arn}"
     }
   }
