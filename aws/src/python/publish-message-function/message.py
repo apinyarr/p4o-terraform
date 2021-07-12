@@ -6,7 +6,7 @@ def lambda_handler(event, context):
     queue = sqs.get_queue_by_name(QueueName='demo-queue')
     response = queue.send_message(MessageBody=json.dumps(event))
     path = json.dumps(event['rawPath'])
-    if path.find("failure") == False:
+    if path.find("success") < 0:
         # Force publish message to dlq
         response = queue.send_message(MessageBody=json.dumps(event))
         response = queue.send_message(MessageBody=json.dumps(event))
