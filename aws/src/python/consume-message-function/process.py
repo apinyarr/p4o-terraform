@@ -4,19 +4,19 @@ import json
 def lambda_handler(event, context):
     # Create SQS client
     sqs = boto3.client('sqs')
-    queue_url = 'https://sqs.ap-southeast-1.amazonaws.com/125065023022/demo-queue
+    queue_url = 'https://sqs.ap-southeast-1.amazonaws.com/125065023022/demo-queue'
     # Receive message from SQS queue
     response = sqs.receive_message(
         QueueUrl=queue_url,
         AttributeNames=[
-            'SentTimestamp'
+            'string'
         ],
         MaxNumberOfMessages=1,
         MessageAttributeNames=[
             'All'
         ],
         VisibilityTimeout=0,
-        WaitTimeSeconds=0
+        WaitTimeSeconds=5
     )
 
     message = response['Messages'][0]
