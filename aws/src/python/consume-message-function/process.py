@@ -1,4 +1,5 @@
 import boto3
+import json
 
 def lambda_handler(event, context):
     # Create SQS client
@@ -22,8 +23,8 @@ def lambda_handler(event, context):
     receipt_handle = message['ReceiptHandle']
 
     # Delete received message from queue
-    sqs.delete_message(
-        QueueUrl=queue_url,
-        ReceiptHandle=receipt_handle
-    )
-    print('Received and deleted message: %s' % message)
+    # sqs.delete_message(
+    #     QueueUrl=queue_url,
+    #     ReceiptHandle=receipt_handle
+    # )
+    # print('Received and deleted message: %s' % message)
