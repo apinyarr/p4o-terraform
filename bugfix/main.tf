@@ -10,3 +10,7 @@ resource "aws_lambda_permission" "this" {
   # see more detail https://docs.aws.amazon.com/lambda/latest/dg/services-apigateway.html
   source_arn = "arn:aws:execute-api:ap-southeast-1:[api-id]/*/*/*"
 }
+
+provider "aws" {
+  region  = "ap-southeast-1"
+}
