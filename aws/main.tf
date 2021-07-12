@@ -48,7 +48,7 @@ module "user_queue" {
   }
 }
 
-module "lambda_function" {
+module "lambda_function_produce_sqs" {
   source = "terraform-aws-modules/lambda/aws"
 
   function_name = "publish-messages-function"
@@ -129,7 +129,7 @@ module "api_gateway" {
   }
 }
 
-module "lambda_function" {
+module "lambda_function_consume_sqs" {
   source = "terraform-aws-modules/lambda/aws"
 
   function_name = "consume-messages-function"
