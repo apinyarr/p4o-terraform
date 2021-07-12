@@ -67,20 +67,6 @@ module "lambda_function" {
   }
 }
 
-# In according to https://github.com/hashicorp/terraform-provider-aws/issues/13625
-resource "aws_lambda_permission" "this" {
-  statement_id  = "AllowExecutionFromAPIGateway"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.this.function_name // add a reference to your function name here
-  principal     = "apigateway.amazonaws.com"
-
-  # The /*/*/* part allows invocation from any stage, method and resource path
-  # within API Gateway REST API. the last one indicates where to send requests to.
-  # see more detail https://docs.aws.amazon.com/lambda/latest/dg/services-apigateway.html
-  source_arn = "${aws_apigatewayv2_api. sc_api.execution_arn}/*/*"
-}
-
-
 module "api_gateway" {
   source = "terraform-aws-modules/apigateway-v2/aws"
 
@@ -110,7 +96,7 @@ module "api_gateway" {
       lambda_arn             = "${module.lambda_function.lambda_function_arn}"
       payload_format_version = "2.0"
       timeout_milliseconds   = 12000
-      # credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw-lambda"
+      credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw-lambda"
       # authorization_type = "AWS_IAM"
     }
 
@@ -118,7 +104,7 @@ module "api_gateway" {
       lambda_arn             = "${module.lambda_function.lambda_function_arn}"
       payload_format_version = "2.0"
       timeout_milliseconds   = 12000
-      # credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw-lambda"
+      credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw-lambda"
       # authorization_type = "AWS_IAM"
     }
 
@@ -133,3 +119,16 @@ module "api_gateway" {
     Name = "http-apigateway"
   }
 }
+
+# In according to https://github.com/hashicorp/terraform-provider-aws/issues/13625
+# resource "aws_lambda_permission" "this" {
+#   statement_id  = "AllowExecutionFromAPIGateway"
+#   action        = "lambda:InvokeFunction"
+#   function_name = module.lambda_function.this.function_name // add a reference to your function name here
+#   principal     = "apigateway.amazonaws.com"
+
+#   # The /*/*/* part allows invocation from any stage, method and resource path
+#   # within API Gateway REST API. the last one indicates where to send requests to.
+#   # see more detail https://docs.aws.amazon.com/lambda/latest/dg/services-apigateway.html
+#   source_arn = "${module.api_gateway.prd-http.*.execution_arn}/*/*"
+# }
