@@ -5,4 +5,4 @@ def lambda_handler(event, context):
     sqs = boto3.resource('sqs')
     queue = sqs.get_queue_by_name(QueueName='demo-queue')
     response = queue.send_message(MessageBody=json.dumps(event))
-    return print(event)
+    return json.dumps(event)
