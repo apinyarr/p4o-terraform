@@ -62,6 +62,13 @@ module "lambda_function" {
   create_role = false
   lambda_role = "arn:aws:iam::125065023022:role/p4o-lamda-sqs-cloudwatch"
 
+  allowed_triggers = {
+    APIGatewayAny = {
+      service    = "apigateway"
+      source_arn = "arn:aws:execute-api:ap-southeast-1:125065023022:*/*/*/*"
+    }
+  }
+
   tags = {
     Name = "publish-message-lambda"
   }
