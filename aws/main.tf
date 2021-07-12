@@ -64,12 +64,12 @@ module "lambda_function" {
 
   attach_policy_json = true
 
-  allowed_triggers = {
-    APIGatewayAny = {
-      service    = "apigateway"
-      source_arn = "arn:aws:execute-api:ap-southeast-1:125065023022:${var.apigw_id}/*/*/*"
-    }
-  }
+  # allowed_triggers = {
+  #   APIGatewayAny = {
+  #     service    = "apigateway"
+  #     source_arn = "arn:aws:execute-api:ap-southeast-1:125065023022:${var.apigw_id}/*/*/*"
+  #   }
+  # }
 
   tags = {
     Name = "publish-message-lambda"
