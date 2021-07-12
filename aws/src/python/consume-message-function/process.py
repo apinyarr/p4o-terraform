@@ -11,12 +11,12 @@ def lambda_handler(event, context):
         AttributeNames=[
             'string'
         ],
-        MaxNumberOfMessages=10,
+        MaxNumberOfMessages=1,
         MessageAttributeNames=[
             'All'
         ],
         VisibilityTimeout=0,
-        WaitTimeSeconds=5
+        WaitTimeSeconds=0
     )
 
     # message = response['Messages'][0]
