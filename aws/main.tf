@@ -59,8 +59,8 @@ module "lambda_function" {
   create = var.create_lambda1
 
   source_path = "src/python/publish-message-function/message.py"
-  create_role = false
-  lambda_role = "arn:aws:iam::125065023022:role/p4o-lamda-sqs-cloudwatch"
+  # create_role = false
+  # lambda_role = "arn:aws:iam::125065023022:role/p4o-lamda-sqs-cloudwatch"
 
   tags = {
     Name = "publish-message-lambda"
@@ -96,7 +96,7 @@ module "api_gateway" {
       lambda_arn             = "${module.lambda_function.lambda_function_arn}"
       payload_format_version = "2.0"
       timeout_milliseconds   = 12000
-      credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw-lambda"
+      # credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw-lambda"
       # authorization_type = "AWS_IAM"
     }
 
@@ -104,7 +104,7 @@ module "api_gateway" {
       lambda_arn             = "${module.lambda_function.lambda_function_arn}"
       payload_format_version = "2.0"
       timeout_milliseconds   = 12000
-      credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw-lambda"
+      # credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw-lambda"
       # authorization_type = "AWS_IAM"
     }
 
