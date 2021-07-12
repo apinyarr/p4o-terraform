@@ -67,7 +67,7 @@ module "lambda_function" {
   allowed_triggers = {
     APIGatewayAny = {
       service    = "apigateway"
-      source_arn = "arn:aws:execute-api:ap-southeast-1:125065023022:${aws_apigatewayv2_api.this.*.id}/*/*/*"
+      source_arn = "arn:aws:execute-api:ap-southeast-1:125065023022:${var.apigw_id}/*/*/*"
     }
   }
 
