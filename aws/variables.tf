@@ -16,6 +16,12 @@ variable "create_lambda1" {
     default = true
 }
 
+variable "create_lambda2" {
+    description = "option to provision lambda2"
+    type = bool
+    default = true
+}
+
 variable "create_apigw" {
     description = "option to provision apigw"
     type = bool

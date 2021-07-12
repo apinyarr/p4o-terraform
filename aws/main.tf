@@ -128,3 +128,24 @@ module "api_gateway" {
     Name = "http-apigateway"
   }
 }
+
+module "lambda_function" {
+  source = "terraform-aws-modules/lambda/aws"
+
+  function_name = "consume-messages-function"
+  description   = "Consume message from SQS"
+  handler       = "process.lambda_handler"
+  runtime       = "python3.8"
+
+  create = var.create_lambda2
+
+  source_path = "src/python/consume-message-function/process.py"
+  create_role = false
+  lambda_role = "arn:aws:iam::125065023022:role/p4o-lamda-sqs-cloudwatch"
+
+  attach_policy_json = true
+
+  tags = {
+    Name = "consume-message-lambda"
+  }
+}
