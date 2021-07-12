@@ -102,7 +102,7 @@ module "api_gateway" {
   # Routes and integrations
   integrations = {
     "ANY /failure" = {
-      lambda_arn             = "${module.lambda_function.lambda_function_arn}"
+      lambda_arn             = "${module.lambda_function_produce_sqs.lambda_function_arn}"
       payload_format_version = "2.0"
       timeout_milliseconds   = 12000
       # credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw-lambda"
@@ -110,7 +110,7 @@ module "api_gateway" {
     }
 
     "ANY /success" = {
-      lambda_arn             = "${module.lambda_function.lambda_function_arn}"
+      lambda_arn             = "${module.lambda_function_produce_sqs.lambda_function_arn}"
       payload_format_version = "2.0"
       timeout_milliseconds   = 12000
       # credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw-lambda"
