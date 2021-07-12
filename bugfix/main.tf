@@ -8,7 +8,7 @@ resource "aws_lambda_permission" "this" {
   # The /*/*/* part allows invocation from any stage, method and resource path
   # within API Gateway REST API. the last one indicates where to send requests to.
   # see more detail https://docs.aws.amazon.com/lambda/latest/dg/services-apigateway.html
-  source_arn = "arn:aws:execute-api:ap-southeast-1:125065023022:[api-id]/*/*/*"
+  source_arn = "arn:aws:execute-api:ap-southeast-1:125065023022:${var.apigw_id}/*/*/*"
 }
 
 provider "aws" {

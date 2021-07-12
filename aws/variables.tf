@@ -16,12 +16,6 @@ variable "create_lambda1" {
     default = true
 }
 
-variable "apigw_id" {
-    description = "option to provision lambda1"
-    type = string
-    default = ""
-}
-
 variable "create_apigw" {
     description = "option to provision apigw"
     type = bool
