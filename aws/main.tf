@@ -128,7 +128,7 @@ module "lambda_function_produce_sqs" {
   source_path = "src/python/publish-message-function/message.py"
   create_role = false
   # lambda_role = "arn:aws:iam::125065023022:role/p4o-lamda-sqs-cloudwatch"
-  lambda_role = "p4o-lambda-sql-cloudwatch"
+  lambda_role = this.aws_iam_role.p4o_role.arn
 
   attach_policy_json = true
 
@@ -210,7 +210,7 @@ module "lambda_function_consume_sqs" {
   source_path = "src/python/consume-message-function/process.py"
   create_role = false
   # lambda_role = "arn:aws:iam::125065023022:role/p4o-lamda-sqs-cloudwatch"
-  lambda_role = "p4o-lambda-sql-cloudwatch"
+  lambda_role = this.aws_iam_role.p4o_role.arn
 
   attach_policy_json = true
 
