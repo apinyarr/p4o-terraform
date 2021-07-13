@@ -27,3 +27,15 @@ variable "create_apigw" {
     type = bool
     default = true
 }
+
+variable "grant_lambda_for_apigw" {
+    description = "option to add permission to allow apigw access lambda"
+    type = bool
+    default = false
+}
+
+variable "apigw_id" {
+    description = "option to provision lambda1"
+    type = string
+    default = ""
+}
