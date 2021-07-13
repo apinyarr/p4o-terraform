@@ -18,6 +18,38 @@
 #   }
 # }
 
+resource "aws_iam_role" "p4o_role" {
+  name = "p4o-lamda-sqs-cloudwatch"
+
+  # Terraform's "jsonencode" function converts a
+  # Terraform expression result to valid JSON syntax.
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        "Action": [
+            "sqs:*"
+        ],
+        "Effect": "Allow",
+        "Resource": "*"
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+            "logs:CreateLogGroup",
+            "logs:CreateLogStream",
+            "logs:PutLogEvents"
+        ],
+        "Resource": "*"
+      }
+    ]
+  })
+
+  tags = {
+    tag-key = "tag-value"
+  }
+}
+
 module "user_dlq" {
   source  = "terraform-aws-modules/sqs/aws"
   version = "~> 2.0"
@@ -60,7 +92,8 @@ module "lambda_function_produce_sqs" {
 
   source_path = "src/python/publish-message-function/message.py"
   create_role = false
-  lambda_role = "arn:aws:iam::125065023022:role/p4o-lamda-sqs-cloudwatch"
+  # lambda_role = "arn:aws:iam::125065023022:role/p4o-lamda-sqs-cloudwatch"
+  lambda_role = aws_iam_role.p4o_role.arn
 
   attach_policy_json = true
 
@@ -141,7 +174,8 @@ module "lambda_function_consume_sqs" {
 
   source_path = "src/python/consume-message-function/process.py"
   create_role = false
-  lambda_role = "arn:aws:iam::125065023022:role/p4o-lamda-sqs-cloudwatch"
+  # lambda_role = "arn:aws:iam::125065023022:role/p4o-lamda-sqs-cloudwatch"
+  lambda_role = aws_iam_role.p4o_role.arn
 
   attach_policy_json = true
 
