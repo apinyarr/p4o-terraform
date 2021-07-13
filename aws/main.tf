@@ -78,11 +78,13 @@ EOF
 resource "aws_iam_role_policy_attachment" "sqs_policy_attachment" {
     role = "${aws_iam_role.p4o_role.name}"
     policy_arn = "arn:aws:iam::aws:policy/AmazonSQSFullAccess"
+    depends_on = [aws_iam_role.p4o_role]
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
     role = "${aws_iam_role.p4o_role.name}"
     policy_arn = "arn:aws:iam::aws:policy/AWSLambdaBasicExecutionRole"
+    depends_on = [aws_iam_role.p4o_role]
 }
 
 module "user_dlq" {
