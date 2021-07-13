@@ -19,7 +19,8 @@ def lambda_handler(event, context):
         WaitTimeSeconds=0
     )
 
-    # message = response['Messages'][0]
+    message = response['Messages'][0]
+    return json.dumps(message)
     # receipt_handle = message['ReceiptHandle']
 
     # Delete received message from queue

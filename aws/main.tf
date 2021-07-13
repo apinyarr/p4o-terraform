@@ -151,7 +151,7 @@ module "lambda_function_consume_sqs" {
 }
 
 # In according to https://github.com/hashicorp/terraform-provider-aws/issues/13625
-resource "aws_lambda_permission" "this" {
+resource "aws_lambda_permission" "apigw_permission" {
   count = var.grant_lambda_for_apigw ? 1 : 0
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
@@ -161,5 +161,11 @@ resource "aws_lambda_permission" "this" {
   # The /*/*/* part allows invocation from any stage, method and resource path
   # within API Gateway REST API. the last one indicates where to send requests to.
   # see more detail https://docs.aws.amazon.com/lambda/latest/dg/services-apigateway.html
-  source_arn = "arn:aws:execute-api:ap-southeast-1:125065023022:${var.apigw_id}/*/*/*"
+  source_arn = "arn:aws:execute-api:ap-southeast-1:125065023022:${var.apigw_id}/*"
+}
+
+resource "aws_lambda_event_source_mapping" "dlq_consumer" {
+  count = var.create_event_source_mapping ? 1 : 0
+  event_source_arn = var.source_sqs_arn //aws_sqs_queue.sqs_queue_test.arn
+  function_name    = var.lambda_function_arn //aws_lambda_function.example.arn
 }

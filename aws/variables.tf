@@ -39,3 +39,21 @@ variable "apigw_id" {
     type = string
     default = ""
 }
+
+variable "create_event_source_mapping" {
+    description = "create event source mapping between dlq and lambda"
+    type = bool
+    default = false
+}
+
+variable "source_sqs_arn" {
+    description = "sqs arn of dlq that is consumed by lambda2"
+    type = string
+    default = ""
+}
+
+variable "lambda_function_arn" {
+    description = "lambda2 arn"
+    type = string
+    default = ""
+}
