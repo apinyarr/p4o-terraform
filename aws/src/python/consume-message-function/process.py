@@ -1,8 +1,9 @@
-import boto3
-import json
+# import boto3
+# import json
+from __future__ import print_function
 
 def lambda_handler(event, context):
-    for record in event['Records']:
+    for record in event['bot']:
         print("test")
         payload = record["body"]
         print(str(payload))
