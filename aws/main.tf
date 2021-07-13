@@ -55,24 +55,24 @@ resource "aws_iam_role" "p4o_role" {
 
   # Terraform's "jsonencode" function converts a
   # Terraform expression result to valid JSON syntax.
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "",
-      "Effect": "Allow",
-      "Principal": {
-        "Service": [
-          "sqs.amazonaws.com",
-          "cloudwatch.amazonaws.com"
-        ]
-      },
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-EOF
+#   assume_role_policy = <<EOF
+# {
+#   "Version": "2012-10-17",
+#   "Statement": [
+#     {
+#       "Sid": "",
+#       "Effect": "Allow",
+#       "Principal": {
+#         "Service": [
+#           "sqs.amazonaws.com",
+#           "cloudwatch.amazonaws.com"
+#         ]
+#       },
+#       "Action": "sts:AssumeRole"
+#     }
+#   ]
+# }
+# EOF
 }
 
 resource "aws_iam_role_policy_attachment" "sqs_policy_attachment" {
