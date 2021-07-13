@@ -18,6 +18,92 @@
 #   }
 # }
 
+# resource "aws_iam_role" "p4o_role" {
+#   name = "p4o-lambda-sqs-cloudwatch"
+
+#   # Terraform's "jsonencode" function converts a
+#   # Terraform expression result to valid JSON syntax.
+#   assume_role_policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [
+#       {
+#         "Action": [
+#             "sqs:*"
+#         ],
+#         "Effect": "Allow",
+#         "Resource": "*"
+#       },
+#       {
+#         "Effect": "Allow",
+#         "Action": [
+#             "logs:CreateLogGroup",
+#             "logs:CreateLogStream",
+#             "logs:PutLogEvents"
+#         ],
+#         "Resource": "*"
+#       }
+#     ]
+#   })
+
+#   tags = {
+#     tag-key = "tag-value"
+#   }
+# }
+
+# resource "aws_iam_role" "p4o_sqs_role" {
+#   name = "p4o-lambda-sqs"
+
+#   assume_role_policy = <<EOF
+# {
+#   "Version": "2012-10-17",
+#   "Statement": [
+#     {
+#       "Sid": "",
+#       "Effect": "Allow",
+#       "Principal": {
+#         "Service": [
+#           "sqs.amazonaws.com"
+#         ]
+#       },
+#       "Action": "sts:AssumeRole"
+#     }
+#   ]
+# }
+# EOF
+# }
+
+# resource "aws_iam_role" "p4o_lambda_role" {
+#   name = "p4o-lambda-cloudwatch"
+
+#   assume_role_policy = <<EOF
+# {
+#   "Version": "2012-10-17",
+#   "Statement": [
+#     {
+#       "Sid": "",
+#       "Effect": "Allow",
+#       "Principal": {
+#         "Service": [
+#           "lambda.amazonaws.com"
+#         ]
+#       },
+#       "Action": "sts:AssumeRole"
+#     }
+#   ]
+# }
+# EOF
+# }
+
+# resource "aws_iam_role_policy_attachment" "sqs_policy_attachment" {
+#     role = "${aws_iam_role.p4o_sqs_role.name}"
+#     policy_arn = "arn:aws:iam::aws:policy/AmazonSQSFullAccess"
+# }
+
+# resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
+#     role = "${aws_iam_role.p4o_lambda_role.name}"
+#     policy_arn = "arn:aws:iam::aws:policy/AWSLambdaBasicExecutionRole"
+# }
+
 module "user_dlq" {
   source  = "terraform-aws-modules/sqs/aws"
   version = "~> 2.0"
@@ -48,7 +134,7 @@ module "user_queue" {
   }
 }
 
-module "lambda_function" {
+module "lambda_function_produce_sqs" {
   source = "terraform-aws-modules/lambda/aws"
 
   function_name = "publish-messages-function"
@@ -61,6 +147,7 @@ module "lambda_function" {
   source_path = "src/python/publish-message-function/message.py"
   create_role = false
   lambda_role = "arn:aws:iam::125065023022:role/p4o-lamda-sqs-cloudwatch"
+  # lambda_role = "${aws_iam_role.p4o_sqs_role.arn}"
 
   attach_policy_json = true
 
@@ -102,7 +189,7 @@ module "api_gateway" {
   # Routes and integrations
   integrations = {
     "ANY /failure" = {
-      lambda_arn             = "${module.lambda_function.lambda_function_arn}"
+      lambda_arn             = "${module.lambda_function_produce_sqs.lambda_function_arn}"
       payload_format_version = "2.0"
       timeout_milliseconds   = 12000
       # credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw-lambda"
@@ -110,7 +197,7 @@ module "api_gateway" {
     }
 
     "ANY /success" = {
-      lambda_arn             = "${module.lambda_function.lambda_function_arn}"
+      lambda_arn             = "${module.lambda_function_produce_sqs.lambda_function_arn}"
       payload_format_version = "2.0"
       timeout_milliseconds   = 12000
       # credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw-lambda"
@@ -127,4 +214,46 @@ module "api_gateway" {
   tags = {
     Name = "http-apigateway"
   }
+}
+
+module "lambda_function_consume_sqs" {
+  source = "terraform-aws-modules/lambda/aws"
+
+  function_name = "consume-messages-function"
+  description   = "Consume message from SQS"
+  handler       = "process.lambda_handler"
+  runtime       = "python3.8"
+
+  create = var.create_lambda2
+
+  source_path = "src/python/consume-message-function/process.py"
+  create_role = false
+  lambda_role = "arn:aws:iam::125065023022:role/p4o-lamda-sqs-cloudwatch"
+  # lambda_role = "${aws_iam_role.p4o_lambda_role.arn}"
+
+  attach_policy_json = true
+
+  tags = {
+    Name = "consume-message-lambda"
+  }
+}
+
+# In according to https://github.com/hashicorp/terraform-provider-aws/issues/13625
+resource "aws_lambda_permission" "apigw_permission" {
+  count = var.grant_lambda_for_apigw ? 1 : 0
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = "publish-messages-function" // add a reference to your function name here
+  principal     = "apigateway.amazonaws.com"
+
+  # The /*/*/* part allows invocation from any stage, method and resource path
+  # within API Gateway REST API. the last one indicates where to send requests to.
+  # see more detail https://docs.aws.amazon.com/lambda/latest/dg/services-apigateway.html
+  source_arn = "arn:aws:execute-api:ap-southeast-1:125065023022:${var.apigw_id}/*"
+}
+
+resource "aws_lambda_event_source_mapping" "dlq_consumer" {
+  count = var.create_event_source_mapping ? 1 : 0
+  event_source_arn = var.source_sqs_arn //aws_sqs_queue.sqs_queue_test.arn
+  function_name    = var.lambda_function_arn //aws_lambda_function.example.arn
 }
