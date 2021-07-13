@@ -72,7 +72,7 @@ resource "aws_iam_role" "p4o_sqs_role" {
 EOF
 }
 
-resource "aws_iam_role" "p4o_cloudwatch_role" {
+resource "aws_iam_role" "p4o_lambda_role" {
   name = "p4o-lambda-cloudwatch"
 
   assume_role_policy = <<EOF
@@ -84,7 +84,7 @@ resource "aws_iam_role" "p4o_cloudwatch_role" {
       "Effect": "Allow",
       "Principal": {
         "Service": [
-          "cloudwatch.amazonaws.com"
+          "lambda.amazonaws.com"
         ]
       },
       "Action": "sts:AssumeRole"
@@ -100,7 +100,7 @@ resource "aws_iam_role_policy_attachment" "sqs_policy_attachment" {
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
-    role = "${aws_iam_role.p4o_cloudwatch_role.name}"
+    role = "${aws_iam_role.p4o_lambda_role.name}"
     policy_arn = "arn:aws:iam::aws:policy/AWSLambdaBasicExecutionRole"
 }
 
@@ -229,7 +229,7 @@ module "lambda_function_consume_sqs" {
   source_path = "src/python/consume-message-function/process.py"
   create_role = false
   # lambda_role = "arn:aws:iam::125065023022:role/p4o-lamda-sqs-cloudwatch"
-  lambda_role = "${aws_iam_role.p4o_cloudwatch_role.arn}"
+  lambda_role = "${aws_iam_role.p4o_lambda_role.arn}"
 
   attach_policy_json = true
 
