@@ -299,7 +299,7 @@ EOF
 }
 
 resource "aws_iam_role_policy_attachment" "firehose_policy_attachment" {
-    role = "firehose_test_role"
+    role = aws_iam_role.firehose_role.arn
     policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
 }
 
