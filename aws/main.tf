@@ -274,7 +274,7 @@ resource "aws_lambda_event_source_mapping" "dlq_consumer" {
 # }
 
 resource "aws_s3_bucket" "bucket" {
-  bucket = "tf-test-bucket"
+  bucket = "p4o_s3_bucket"
   acl    = "private"
 }
 
