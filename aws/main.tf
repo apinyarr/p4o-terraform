@@ -327,7 +327,7 @@ resource "aws_iam_role" "glue_role" {
     {
       "Action": "sts:AssumeRole",
       "Principal": {
-        "Service": "glue.amazonaws.com"
+        "Service": "s3.amazonaws.com"
       },
       "Effect": "Allow",
       "Sid": ""
