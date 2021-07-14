@@ -323,7 +323,7 @@ resource "aws_glue_crawler" "example" {
   role          = aws_iam_role.glue.arn
 
   s3_target {
-    path = "s3://${aws_s3_bucket.bucket.bucket_domain_name}"
+    path = "s3://${aws_s3_bucket.bucket.bucket}"
   }
 
   provisioner "local-exec" {
