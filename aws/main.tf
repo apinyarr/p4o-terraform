@@ -298,6 +298,11 @@ resource "aws_iam_role" "firehose_role" {
 EOF
 }
 
+resource "aws_iam_role_policy_attachment" "firehose_policy_attachment" {
+    role = "firehose_test_role"
+    policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+}
+
 resource "aws_kinesis_firehose_delivery_stream" "test_stream" {
   name        = "terraform-kinesis-firehose-test-stream"
   destination = "s3"
