@@ -379,7 +379,7 @@ EOF
 
 resource "aws_iam_role_policy_attachment" "s3_service" {
     role = aws_iam_role.glue.id
-    policy_arn = "arn:aws:iam::aws:policy/my-s3-policy"
+    policy_arn = "arn:aws:iam::aws:policy/my_s3_policy"
 }
 
 # resource "aws_iam_role_policy" "glue_service_s3" {
