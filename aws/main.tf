@@ -322,21 +322,24 @@ resource "aws_iam_role" "glue_role" {
 
   assume_role_policy = <<EOF
 {
-   "Version": "2012-10-17",
-    "Statement": [
-        {
-          "Effect": "Allow",
-          "Action": [
-              "s3:GetObject",
-              "s3:PutObject"
-          ],
-          "Resource": [
-              "arn:aws:s3:::bucket/object*"
-          ]
-        }
-    ]
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "glue.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
 }
 EOF
+}
+
+resource "aws_iam_role_policy_attachment" "glue_policy_attachment" {
+    role = aws_iam_role.glue_role.name
+    policy_arn = "arn:aws:iam::aws:policy/AWSGlueServiceRole"
 }
 
 resource "aws_glue_crawler" "example" {
