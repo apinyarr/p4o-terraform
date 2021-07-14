@@ -317,9 +317,18 @@ resource "aws_glue_catalog_database" "aws_glue_catalog_database" {
   name = "my-glue-catalog-database"
 }
 
-resource "aws_iam_role" "glue_role" {
-  name = "glue_test_role"
+resource "aws_glue_crawler" "example" {
+  database_name = aws_glue_catalog_database.aws_glue_catalog_database.name
+  name          = "my-glue-crawler"
+  role          = aws_iam_role.glue_role.arn
 
+  s3_target {
+    path = "s3://${aws_s3_bucket.bucket.bucket_domain_name}"
+  }
+}
+
+resource "aws_iam_role" "glue" {
+  name = "AWSGlueServiceRoleDefault"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -327,7 +336,7 @@ resource "aws_iam_role" "glue_role" {
     {
       "Action": "sts:AssumeRole",
       "Principal": {
-        "Service": "s3.amazonaws.com"
+        "Service": "glue.amazonaws.com"
       },
       "Effect": "Allow",
       "Sid": ""
@@ -337,41 +346,35 @@ resource "aws_iam_role" "glue_role" {
 EOF
 }
 
-resource "aws_iam_policy" "glue_policy" {
-  name        = "glue_policy"
-  path        = "/"
-  description = "My test policy"
-
-  # Terraform's "jsonencode" function converts a
-  # Terraform expression result to valid JSON syntax.
-  policy = jsonencode({
-   "Version": "2012-10-17",
-    "Statement": [
-        {
-          "Effect": "Allow",
-          "Action": [
-              "s3:GetObject",
-              "s3:PutObject"
-          ],
-          "Resource": [
-              "arn:aws:s3:::bucket/object*"
-          ]
-        }
-    ]
-  })
+resource "aws_iam_role_policy_attachment" "glue_service" {
+    role = "${aws_iam_role.glue.id}"
+    policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
 }
 
-resource "aws_iam_role_policy_attachment" "glue_policy_attachment" {
-    role = aws_iam_role.glue_role.name
-    policy_arn = aws_iam_policy.glue_policy.arn
+resource "aws_iam_role_policy" "my_s3_policy" {
+  name = "my_s3_policy"
+  role = "${aws_iam_role.glue.id}"
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:*"
+      ],
+      "Resource": [
+        "arn:aws:s3:::p4o-s3-bucket",
+        "arn:aws:s3:::p4o-s3-bucket/*"
+      ]
+    }
+  ]
+}
+EOF
 }
 
-resource "aws_glue_crawler" "example" {
-  database_name = aws_glue_catalog_database.aws_glue_catalog_database.name
-  name          = "my-glue-crawler"
-  role          = aws_iam_role.glue_role.arn
-
-  s3_target {
-    path = "s3://${aws_s3_bucket.bucket.bucket_domain_name}"
-  }
+resource "aws_iam_role_policy" "glue_service_s3" {
+  name = "glue_service_s3"
+  role = "${aws_iam_role.glue.id}"
+  policy = "${aws_iam_role_policy.my_s3_policy.policy}"
 }
