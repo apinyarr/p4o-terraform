@@ -146,7 +146,7 @@ module "lambda_function_produce_sqs" {
 
   source_path = "src/python/publish-message-function/message.py"
   create_role = false
-  lambda_role = "arn:aws:iam::125065023022:role/p4o-lamda-sqs-cloudwatch"
+  lambda_role = "arn:aws:iam::125065023022:role/p4o-lambda-sqs-cloudwatch"
   # lambda_role = "${aws_iam_role.p4o_sqs_role.arn}"
 
   attach_policy_json = true
@@ -228,7 +228,7 @@ module "lambda_function_consume_sqs" {
 
   source_path = "src/python/consume-message-function/process.py"
   create_role = false
-  lambda_role = "arn:aws:iam::125065023022:role/p4o-lamda-sqs-cloudwatch"
+  lambda_role = "arn:aws:iam::125065023022:role/p4o-lambda-sqs-cloudwatch"
   # lambda_role = "${aws_iam_role.p4o_lambda_role.arn}"
 
   attach_policy_json = true
@@ -256,4 +256,59 @@ resource "aws_lambda_event_source_mapping" "dlq_consumer" {
   count = var.create_event_source_mapping ? 1 : 0
   event_source_arn = var.source_sqs_arn //aws_sqs_queue.sqs_queue_test.arn
   function_name    = var.lambda_function_arn //aws_lambda_function.example.arn
+}
+
+# resource "aws_kinesis_stream" "test_stream" {
+#   name             = "terraform-kinesis-test"
+#   shard_count      = 1
+#   retention_period = 24
+
+#   shard_level_metrics = [
+#     "IncomingBytes",
+#     "OutgoingBytes",
+#   ]
+
+#   tags = {
+#     Environment = "test"
+#   }
+# }
+
+resource "aws_s3_bucket" "bucket" {
+  bucket = "p4o-s3-bucket"
+  acl    = "private"
+}
+
+resource "aws_iam_role" "firehose_role" {
+  name = "firehose_test_role"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "firehose.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "firehose_policy_attachment" {
+    role = aws_iam_role.firehose_role.name
+    policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+}
+
+resource "aws_kinesis_firehose_delivery_stream" "test_stream" {
+  name        = "terraform-kinesis-firehose-test-stream"
+  destination = "s3"
+
+  s3_configuration {
+    role_arn   = aws_iam_role.firehose_role.arn
+    bucket_arn = aws_s3_bucket.bucket.arn
+  }
 }
