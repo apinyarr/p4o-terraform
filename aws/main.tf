@@ -279,7 +279,7 @@ resource "aws_s3_bucket" "bucket" {
 }
 
 resource "aws_iam_role" "firehose_role" {
-  name = "firehose_test_role"
+  name = "p4o-firehose"
 
   assume_role_policy = <<EOF
 {
@@ -325,10 +325,14 @@ resource "aws_glue_crawler" "example" {
   s3_target {
     path = "s3://${aws_s3_bucket.bucket.bucket_domain_name}"
   }
+
+  provisioner "local-exec" {
+    command = "aws glue start-crawler --name ${self.name}"
+  }
 }
 
 resource "aws_iam_role" "glue" {
-  name = "AWSGlueServiceRoleDefault"
+  name = "p4o-glue"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -347,13 +351,13 @@ EOF
 }
 
 resource "aws_iam_role_policy_attachment" "glue_service" {
-    role = "${aws_iam_role.glue.id}"
+    role = aws_iam_role.glue.id
     policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
 }
 
 resource "aws_iam_role_policy" "my_s3_policy" {
-  name = "my_s3_policy"
-  role = "${aws_iam_role.glue.id}"
+  name = "my-s3-policy"
+  role = aws_iam_role.glue.id
   policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -374,7 +378,7 @@ EOF
 }
 
 resource "aws_iam_role_policy" "glue_service_s3" {
-  name = "glue_service_s3"
-  role = "${aws_iam_role.glue.id}"
-  policy = "${aws_iam_role_policy.my_s3_policy.policy}"
+  name = "glue-service-s3"
+  role = aws_iam_role.glue.id
+  policy = aws_iam_role_policy.my_s3_policy.policy
 }
