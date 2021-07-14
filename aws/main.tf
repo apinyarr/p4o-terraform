@@ -337,9 +337,33 @@ resource "aws_iam_role" "glue_role" {
 EOF
 }
 
-resource "aws_iam_role_policy_attachment" "glue_policy_attachment" {
+resource "aws_iam_policy" "glue_policy" {
+  name        = "glue_policy"
+  path        = "/"
+  description = "My test policy"
+
+  # Terraform's "jsonencode" function converts a
+  # Terraform expression result to valid JSON syntax.
+  policy = jsonencode({
+   "Version": "2012-10-17",
+    "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+              "s3:GetObject",
+              "s3:PutObject"
+          ],
+          "Resource": [
+              "arn:aws:s3:::bucket/object*"
+          ]
+        }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "firehose_policy_attachment" {
     role = aws_iam_role.glue_role.name
-    policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess" 
+    policy_arn = aws_iam_policy.glue_policy.arn
 }
 
 resource "aws_glue_crawler" "example" {
