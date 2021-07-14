@@ -320,7 +320,7 @@ resource "aws_glue_catalog_database" "aws_glue_catalog_database" {
 resource "aws_glue_crawler" "example" {
   database_name = aws_glue_catalog_database.aws_glue_catalog_database.name
   name          = "my-glue-crawler"
-  role          = aws_iam_role.glue_role.arn
+  role          = aws_iam_role.glue.arn
 
   s3_target {
     path = "s3://${aws_s3_bucket.bucket.bucket_domain_name}"
