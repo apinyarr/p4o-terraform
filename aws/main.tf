@@ -317,10 +317,32 @@ resource "aws_glue_catalog_database" "aws_glue_catalog_database" {
   name = "my-glue-catalog-database"
 }
 
+resource "aws_iam_role" "glue_role" {
+  name = "glue_test_role"
+
+  assume_role_policy = <<EOF
+{
+   "Version": "2012-10-17",
+    "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": [
+              "s3:GetObject",
+              "s3:PutObject"
+          ],
+          "Resource": [
+              "arn:aws:s3:::bucket/object*"
+          ]
+        }
+    ]
+}
+EOF
+}
+
 resource "aws_glue_crawler" "example" {
   database_name = aws_glue_catalog_database.aws_glue_catalog_database.name
   name          = "my-glue-crawler"
-  role          = aws_iam_role.firehose_role.arn
+  role          = aws_iam_role.glue_role.arn
 
   s3_target {
     path = "s3://${aws_s3_bucket.bucket.bucket_domain_name}"
