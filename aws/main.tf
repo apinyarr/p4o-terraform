@@ -312,3 +312,17 @@ resource "aws_kinesis_firehose_delivery_stream" "test_stream" {
     bucket_arn = aws_s3_bucket.bucket.arn
   }
 }
+
+resource "aws_glue_catalog_database" "aws_glue_catalog_database" {
+  name = "MyCatalogDatabase"
+}
+
+resource "aws_glue_crawler" "example" {
+  database_name = aws_glue_catalog_database.aws_glue_catalog_database.name
+  name          = "my-glue-crawler"
+  role          = aws_iam_role.firehose_role.arn
+
+  s3_target {
+    path = "s3://${aws_s3_bucket.bucket.bucket_domain_name}"
+  }
+}
