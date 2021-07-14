@@ -33,7 +33,7 @@ import boto3
 #     generate(STREAM_NAME, boto3.client('kinesis'))
 
 def lambda_handler(event, context):
-    STREAM_NAME = "terraform-kinesis-test"
+    STREAM_NAME = "terraform-kinesis-firehose-test-stream"
     kinesis_client = boto3.client('kinesis')
     for record in event['Records']:
         print("new record")
