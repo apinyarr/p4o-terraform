@@ -314,7 +314,7 @@ resource "aws_kinesis_firehose_delivery_stream" "test_stream" {
 }
 
 resource "aws_glue_catalog_database" "aws_glue_catalog_database" {
-  name = "MyCatalogDatabase"
+  name = "my-glue-catalog-database"
 }
 
 resource "aws_glue_crawler" "example" {
