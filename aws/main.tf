@@ -339,7 +339,7 @@ EOF
 
 resource "aws_iam_role_policy_attachment" "glue_policy_attachment" {
     role = aws_iam_role.glue_role.name
-    policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole" 
+    policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess" 
 }
 
 resource "aws_glue_crawler" "example" {
