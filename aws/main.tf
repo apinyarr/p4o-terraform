@@ -261,7 +261,7 @@ resource "aws_lambda_event_source_mapping" "dlq_consumer" {
 resource "aws_kinesis_stream" "test_stream" {
   name             = "terraform-kinesis-test"
   shard_count      = 1
-  retention_period = 5
+  retention_period = 24
 
   shard_level_metrics = [
     "IncomingBytes",
