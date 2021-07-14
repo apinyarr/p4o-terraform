@@ -361,7 +361,7 @@ resource "aws_iam_policy" "glue_policy" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "firehose_policy_attachment" {
+resource "aws_iam_role_policy_attachment" "glue_policy_attachment" {
     role = aws_iam_role.glue_role.name
     policy_arn = aws_iam_policy.glue_policy.arn
 }
