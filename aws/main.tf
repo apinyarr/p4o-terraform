@@ -332,7 +332,7 @@ resource "aws_glue_crawler" "example" {
 }
 
 resource "aws_iam_role" "glue" {
-  name = "p4o-glue"
+  name = "AWSGlueServiceRoleDefault"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -351,13 +351,13 @@ EOF
 }
 
 resource "aws_iam_role_policy_attachment" "glue_service" {
-    role = aws_iam_role.glue.id
+    role = "${aws_iam_role.glue.id}"
     policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
 }
 
 resource "aws_iam_role_policy" "my_s3_policy" {
-  name = "my-s3-policy"
-  role = aws_iam_role.glue.id
+  name = "my_s3_policy"
+  role = "${aws_iam_role.glue.id}"
   policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -377,13 +377,8 @@ resource "aws_iam_role_policy" "my_s3_policy" {
 EOF
 }
 
-resource "aws_iam_role_policy_attachment" "s3_service" {
-    role = aws_iam_role.glue.id
-    policy_arn = "arn:aws:iam::aws:policy/my-s3-policy"
+resource "aws_iam_role_policy" "glue_service_s3" {
+  name = "glue_service_s3"
+  role = "${aws_iam_role.glue.id}"
+  policy = "${aws_iam_role_policy.my_s3_policy.policy}"
 }
-
-# resource "aws_iam_role_policy" "glue_service_s3" {
-#   name = "glue-service-s3"
-#   role = aws_iam_role.glue.id
-#   policy = aws_iam_role_policy.my_s3_policy.policy
-# }
