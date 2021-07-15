@@ -279,7 +279,7 @@ resource "aws_s3_bucket" "bucket" {
 }
 
 resource "aws_iam_role" "firehose_role" {
-  name = "firehose_test_role"
+  name = "p4o-firehose"
 
   assume_role_policy = <<EOF
 {
@@ -312,3 +312,78 @@ resource "aws_kinesis_firehose_delivery_stream" "test_stream" {
     bucket_arn = aws_s3_bucket.bucket.arn
   }
 }
+
+resource "aws_glue_catalog_database" "aws_glue_catalog_database" {
+  name = "my-glue-catalog-database"
+}
+
+resource "aws_glue_crawler" "example" {
+  database_name = aws_glue_catalog_database.aws_glue_catalog_database.name
+  name          = "my-glue-crawler"
+  role          = aws_iam_role.glue.arn
+
+  s3_target {
+    path = "s3://${aws_s3_bucket.bucket.bucket}"
+  }
+
+  provisioner "local-exec" {
+    command = "aws glue start-crawler --name ${self.name}"
+  }
+}
+
+resource "aws_iam_role" "glue" {
+  name = "p4o-glue"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "glue.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "glue_service" {
+    role = aws_iam_role.glue.id
+    policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
+}
+
+resource "aws_iam_role_policy" "my_s3_policy" {
+  name = "my-s3-policy"
+  role = aws_iam_role.glue.id
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:*"
+      ],
+      "Resource": [
+        "arn:aws:s3:::p4o-s3-bucket",
+        "arn:aws:s3:::p4o-s3-bucket/*"
+      ]
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "s3_service" {
+    role = aws_iam_role.glue.id
+    policy_arn = "arn:aws:iam::aws:policy/my-s3-policy"
+}
+
+# resource "aws_iam_role_policy" "glue_service_s3" {
+#   name = "glue-service-s3"
+#   role = aws_iam_role.glue.id
+#   policy = aws_iam_role_policy.my_s3_policy.policy
+# }
