@@ -356,7 +356,7 @@ resource "aws_iam_role_policy_attachment" "glue_service" {
 }
 
 resource "aws_iam_role_policy" "my_s3_policy" {
-  name = "my-s3-policy"
+  name = "my_s3_policy"
   role = aws_iam_role.glue.id
   policy = <<EOF
 {
@@ -377,10 +377,10 @@ resource "aws_iam_role_policy" "my_s3_policy" {
 EOF
 }
 
-resource "aws_iam_role_policy_attachment" "s3_service" {
-    role = aws_iam_role.glue.id
-    policy_arn = aws_iam_role_policy.my_s3_policy.id
-}
+# resource "aws_iam_role_policy_attachment" "s3_service" {
+#     role = aws_iam_role.glue.id
+#     policy_arn = aws_iam_role_policy.my_s3_policy.id
+# }
 
 # resource "aws_iam_role_policy" "glue_service_s3" {
 #   name = "glue-service-s3"
