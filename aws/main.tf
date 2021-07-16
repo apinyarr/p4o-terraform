@@ -35,10 +35,10 @@ resource "aws_iam_role_policy" "lambda_sqs_policy" {
     {
       "Effect": "Allow",
       "Action": [
-        "sqs:SendMessage"
+        "sqs:*"
       ],
       "Resource": [
-        "arn:aws:sqs:::demo-queue"
+        "arn:aws:sqs:ap-southeast-1:125065023022:demo-queue"
       ]
     }
   ]
@@ -102,7 +102,7 @@ module "lambda_function_produce_sqs" {
 
   tags = {
     Name = "publish-message-lambda"
-  }s
+  }
 }
 
 # module "api_gateway" {
