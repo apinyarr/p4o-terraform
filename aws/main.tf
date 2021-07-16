@@ -22,7 +22,7 @@ EOF
 
 resource "aws_iam_role_policy_attachment" "lambda_producer_attachment" {
     role = "${aws_iam_role.lambda_producer_role.name}"
-    policy_arn = "arn:aws:iam::aws:policy/AWSLambdaBasicExecutionRole"
+    policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
 # module "user_dlq" {
