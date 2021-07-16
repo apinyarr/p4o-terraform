@@ -25,6 +25,27 @@ resource "aws_iam_role_policy_attachment" "lambda_producer_attachment" {
     policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+resource "aws_iam_role_policy" "lambda_sqs_policy" {
+  name = "p4o-lambda-producer-policy"
+  role = "${aws_iam_role.lambda_producer_role.id}"
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "sqs:SendMessage"
+      ],
+      "Resource": [
+        "arn:aws:sqs:::demo-queue",
+      ]
+    }
+  ]
+}
+EOF
+}
+
 # module "user_dlq" {
 #   source  = "terraform-aws-modules/sqs/aws"
 #   version = "~> 2.0"
