@@ -21,7 +21,7 @@ EOF
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_producer_attachment" {
-    role = "${aws_iam_role.aws_iam_role.lambda_producer_role.name}"
+    role = "${aws_iam_role.lambda_producer_role.name}"
     policy_arn = "arn:aws:iam::aws:policy/AWSLambdaBasicExecutionRole"
 }
 
