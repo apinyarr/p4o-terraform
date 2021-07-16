@@ -159,16 +159,16 @@ module "api_gateway" {
       lambda_arn             = "${module.lambda_function_produce_sqs.lambda_function_arn}"
       payload_format_version = "2.0"
       timeout_milliseconds   = 12000
-      # credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw-lambda"
-      # authorization_type = "AWS_IAM"
+      credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw"
+      authorization_type = "AWS_IAM"
     }
 
     "ANY /success" = {
       lambda_arn             = "${module.lambda_function_produce_sqs.lambda_function_arn}"
       payload_format_version = "2.0"
       timeout_milliseconds   = 12000
-      # credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw-lambda"
-      # authorization_type = "AWS_IAM"
+      credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw"
+      authorization_type = "AWS_IAM"
     }
 
     # "$default" = {
