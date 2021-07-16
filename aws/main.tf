@@ -20,7 +20,7 @@ resource "aws_iam_role" "lambda_producer_role" {
 EOF
 }
 
-resource "aws_iam_role_policy_attachment" "lambda_producer_attachment" {
+resource "aws_iam_role_policy_attachment" "lambda_log_attachment" {
     role = "${aws_iam_role.lambda_producer_role.name}"
     policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
