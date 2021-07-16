@@ -25,25 +25,9 @@ resource "aws_iam_role_policy_attachment" "lambda_producer_attachment" {
     policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
-resource "aws_iam_role_policy" "lambda_sqs_policy" {
-  name = "p4o-lambda-producer-policy"
-  role = "${aws_iam_role.lambda_producer_role.id}"
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "sqs:*"
-      ],
-      "Resource": [
-        "arn:aws:sqs:ap-southeast-1:125065023022:demo-queue"
-      ]
-    }
-  ]
-}
-EOF
+resource "aws_iam_role_policy_attachment" "lambda_producer_attachment" {
+    role = "${aws_iam_role.lambda_producer_role.name}"
+    policy_arn = "arn:aws:iam::aws:policy/AmazonSQSFullAccess"
 }
 
 module "user_dlq" {
