@@ -38,7 +38,7 @@ resource "aws_iam_role_policy" "lambda_sqs_policy" {
         "sqs:SendMessage"
       ],
       "Resource": [
-        "arn:aws:sqs:::demo-queue",
+        "arn:aws:sqs:::demo-queue"
       ]
     }
   ]
@@ -46,64 +46,64 @@ resource "aws_iam_role_policy" "lambda_sqs_policy" {
 EOF
 }
 
-# module "user_dlq" {
-#   source  = "terraform-aws-modules/sqs/aws"
-#   version = "~> 2.0"
+module "user_dlq" {
+  source  = "terraform-aws-modules/sqs/aws"
+  version = "~> 2.0"
 
-#   name = "demo-dlq"
-#   create = var.create_sqs
+  name = "demo-dlq"
+  create = var.create_sqs
 
-#   tags = {
-#     Service     = "demo-dlq"
-#     Environment = "prd"
-#   }
-# }
+  tags = {
+    Service     = "demo-dlq"
+    Environment = "prd"
+  }
+}
 
-# module "user_queue" {
-#   source  = "terraform-aws-modules/sqs/aws"
-#   version = "~> 2.0"
+module "user_queue" {
+  source  = "terraform-aws-modules/sqs/aws"
+  version = "~> 2.0"
 
-#   name = "demo-queue"
-#   create = var.create_sqs
-#   redrive_policy = jsonencode({
-#     deadLetterTargetArn = "${module.user_dlq.this_sqs_queue_arn}"
-#     maxReceiveCount = 3
-#   })
+  name = "demo-queue"
+  create = var.create_sqs
+  redrive_policy = jsonencode({
+    deadLetterTargetArn = "${module.user_dlq.this_sqs_queue_arn}"
+    maxReceiveCount = 3
+  })
 
-#   tags = {
-#     Service     = "demo-queue"
-#     Environment = "prd"
-#   }
-# }
+  tags = {
+    Service     = "demo-queue"
+    Environment = "prd"
+  }
+}
 
-# module "lambda_function_produce_sqs" {
-#   source = "terraform-aws-modules/lambda/aws"
+module "lambda_function_produce_sqs" {
+  source = "terraform-aws-modules/lambda/aws"
 
-#   function_name = "publish-messages-function"
-#   description   = "Publish message to SQS"
-#   handler       = "message.lambda_handler"
-#   runtime       = "python3.8"
+  function_name = "publish-messages-function"
+  description   = "Publish message to SQS"
+  handler       = "message.lambda_handler"
+  runtime       = "python3.8"
 
-#   create = var.create_lambda1
+  create = var.create_lambda1
 
-#   source_path = "src/python/publish-message-function/message.py"
-#   create_role = false
-#   lambda_role = "arn:aws:iam::125065023022:role/p4o-lambda-sqs-cloudwatch"
-#   # lambda_role = "${aws_iam_role.p4o_sqs_role.arn}"
+  source_path = "src/python/publish-message-function/message.py"
+  create_role = false
+  lambda_role = "${aws_iam_role.lambda_producer_role.arn}"
+  # lambda_role = "${aws_iam_role.p4o_sqs_role.arn}"
 
-#   attach_policy_json = true
+  attach_policy_json = true
 
-#   # allowed_triggers = {
-#   #   APIGatewayAny = {
-#   #     service    = "apigateway"
-#   #     source_arn = "arn:aws:execute-api:ap-southeast-1:125065023022:${var.apigw_id}/*/*/*"
-#   #   }
-#   # }
+  # allowed_triggers = {
+  #   APIGatewayAny = {
+  #     service    = "apigateway"
+  #     source_arn = "arn:aws:execute-api:ap-southeast-1:125065023022:${var.apigw_id}/*/*/*"
+  #   }
+  # }
 
-#   tags = {
-#     Name = "publish-message-lambda"
-#   }s
-# }
+  tags = {
+    Name = "publish-message-lambda"
+  }s
+}
 
 # module "api_gateway" {
 #   source = "terraform-aws-modules/apigateway-v2/aws"
