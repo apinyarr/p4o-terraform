@@ -68,7 +68,7 @@ resource "aws_lambda_permission" "apigw_permission" {
   # The /*/*/* part allows invocation from any stage, method and resource path
   # within API Gateway REST API. the last one indicates where to send requests to.
   # see more detail https://docs.aws.amazon.com/lambda/latest/dg/services-apigateway.html
-  source_arn = "${module.api_gateway.apigatewayv2_api_arn}"
+  source_arn = "${module.api_gateway.apigatewayv2_api_arn}/*"
 }
 
 module "user_dlq" {
