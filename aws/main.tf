@@ -119,8 +119,8 @@ resource "aws_iam_role_policy_attachment" "firehose_policy_attachment" {
     policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
 }
 
-resource "aws_iam_role" "glue" {
-  name = "AWSGlueServiceRoleDefault"
+resource "aws_iam_role" "glue_role" {
+  name = "p4o-glue"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
@@ -139,7 +139,7 @@ EOF
 }
 
 resource "aws_iam_role_policy_attachment" "glue_service" {
-    role = "${aws_iam_role.glue.id}"
+    role = "${aws_iam_role.glue_role.id}"
     policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
 }
 
@@ -322,7 +322,7 @@ resource "aws_glue_catalog_database" "aws_glue_catalog_database" {
 resource "aws_glue_crawler" "glue_crawler_example" {
   database_name = aws_glue_catalog_database.aws_glue_catalog_database.name
   name          = "my-glue-crawler"
-  role          = aws_iam_role.glue.arn
+  role          = aws_iam_role.glue_role.arn
 
   s3_target {
     path = "s3://${aws_s3_bucket.bucket.bucket}"
