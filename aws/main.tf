@@ -30,6 +30,43 @@ resource "aws_iam_role_policy_attachment" "lambda_producer_attachment" {
     policy_arn = "arn:aws:iam::aws:policy/AmazonSQSFullAccess"
 }
 
+resource "aws_iam_role" "lambda_consumer_role" {
+  name = "p4o-lambda-consumer"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": [
+          "lambda.amazonaws.com"
+        ]
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "lambda2_log_attachment" {
+    role = "${aws_iam_role.lambda_consumer_role.name}"
+    policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_consumer_attachment" {
+    role = "${aws_iam_role.lambda_consumer_role.name}"
+    policy_arn = "arn:aws:iam::aws:policy/AmazonSQSFullAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_firehose_attachment" {
+    role = "${aws_iam_role.lambda_consumer_role.name}"
+    policy_arn = "arn:aws:iam::aws:policy/AmazonKinesisFirehoseFullAccess"
+}
+
 resource "aws_iam_role" "apigw_lambda_role" {
   name = "p4o-apigw"
 
@@ -141,7 +178,6 @@ module "lambda_function_produce_sqs" {
   source_path = "src/python/publish-message-function/message.py"
   create_role = false
   lambda_role = "${aws_iam_role.lambda_producer_role.arn}"
-  # lambda_role = "${aws_iam_role.p4o_sqs_role.arn}"
 
   attach_policy_json = true
 
@@ -154,6 +190,27 @@ module "lambda_function_produce_sqs" {
 
   tags = {
     Name = "publish-message-lambda"
+  }
+}
+
+module "lambda_function_consume_sqs" {
+  source = "terraform-aws-modules/lambda/aws"
+
+  function_name = "consume-messages-function"
+  description   = "Consume message from SQS"
+  handler       = "process.lambda_handler"
+  runtime       = "python3.8"
+
+  create = var.create_lambda2
+
+  source_path = "src/python/consume-message-function/process.py"
+  create_role = false
+  lambda_role = "${aws_iam_role.lambda_consumer_role.arn}"
+
+  attach_policy_json = true
+
+  tags = {
+    Name = "consume-message-lambda"
   }
 }
 
