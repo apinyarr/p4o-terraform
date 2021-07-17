@@ -119,6 +119,30 @@ resource "aws_iam_role_policy_attachment" "firehose_policy_attachment" {
     policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
 }
 
+resource "aws_iam_role" "glue" {
+  name = "AWSGlueServiceRoleDefault"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "glue.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "glue_service" {
+    role = "${aws_iam_role.glue.id}"
+    policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
+}
+
 data "aws_caller_identity" "current" {}
 
 # In according to https://github.com/hashicorp/terraform-provider-aws/issues/13625
@@ -289,4 +313,22 @@ resource "aws_kinesis_firehose_delivery_stream" "test_stream" {
     role_arn   = aws_iam_role.firehose_role.arn
     bucket_arn = aws_s3_bucket.bucket.arn
   }
+}
+
+resource "aws_glue_catalog_database" "aws_glue_catalog_database" {
+  name = "my-glue-catalog-database"
+}
+
+resource "aws_glue_crawler" "glue_crawler_example" {
+  database_name = aws_glue_catalog_database.aws_glue_catalog_database.name
+  name          = "my-glue-crawler"
+  role          = aws_iam_role.glue.arn
+
+  s3_target {
+    path = "s3://${aws_s3_bucket.bucket.bucket}"
+  }
+
+  # provisioner "local-exec" {
+  #   command = "aws glue start-crawler --name ${self.name}"
+  # }
 }
