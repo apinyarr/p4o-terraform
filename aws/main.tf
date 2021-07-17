@@ -1,3 +1,6 @@
+############ Create all IAM resources ##############
+
+# Create p4o-lambda-producer role for producer lambda
 resource "aws_iam_role" "lambda_producer_role" {
   name = "p4o-lambda-producer"
 
@@ -20,16 +23,19 @@ resource "aws_iam_role" "lambda_producer_role" {
 EOF
 }
 
+# Attach AWS managed policy AWSLambdaBasicExecutionRole to p4o-lambda-producer role
 resource "aws_iam_role_policy_attachment" "lambda_log_attachment" {
     role = "${aws_iam_role.lambda_producer_role.name}"
     policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+# Attach AWS managed policy AmazonSQSFullAccess to p4o-lambda-producer role
 resource "aws_iam_role_policy_attachment" "lambda_producer_attachment" {
     role = "${aws_iam_role.lambda_producer_role.name}"
     policy_arn = "arn:aws:iam::aws:policy/AmazonSQSFullAccess"
 }
 
+# Create p4o-lambda-consumer role for consumer lambda
 resource "aws_iam_role" "lambda_consumer_role" {
   name = "p4o-lambda-consumer"
 
@@ -52,21 +58,25 @@ resource "aws_iam_role" "lambda_consumer_role" {
 EOF
 }
 
+# Attach AWS managed policy AWSLambdaBasicExecutionRole to p4o-lambda-consumer role
 resource "aws_iam_role_policy_attachment" "lambda2_log_attachment" {
     role = "${aws_iam_role.lambda_consumer_role.name}"
     policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+# Attach AWS managed policy AmazonSQSFullAccess to p4o-lambda-consumer role
 resource "aws_iam_role_policy_attachment" "lambda_consumer_attachment" {
     role = "${aws_iam_role.lambda_consumer_role.name}"
     policy_arn = "arn:aws:iam::aws:policy/AmazonSQSFullAccess"
 }
 
+# Attach AWS managed policy AmazonKinesisFirehoseFullAccess to p4o-lambda-consumer role
 resource "aws_iam_role_policy_attachment" "lambda_firehose_attachment" {
     role = "${aws_iam_role.lambda_consumer_role.name}"
     policy_arn = "arn:aws:iam::aws:policy/AmazonKinesisFirehoseFullAccess"
 }
 
+# Create p4o-apigw role for api gateway
 resource "aws_iam_role" "apigw_lambda_role" {
   name = "p4o-apigw"
 
@@ -89,11 +99,13 @@ resource "aws_iam_role" "apigw_lambda_role" {
 EOF
 }
 
+# Attach AWS managed policy AWSLambdaBasicExecutionRole to p4o-apigw role
 resource "aws_iam_role_policy_attachment" "apigw_log_attachment" {
     role = "${aws_iam_role.apigw_lambda_role.name}"
     policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+# Create p4o-firehose role for kinesis firehose
 resource "aws_iam_role" "firehose_role" {
   name = "p4o-firehose"
 
@@ -114,11 +126,13 @@ resource "aws_iam_role" "firehose_role" {
 EOF
 }
 
+# Attach AWS managed policy AmazonS3FullAccess to p4o-firehose role
 resource "aws_iam_role_policy_attachment" "firehose_policy_attachment" {
     role = aws_iam_role.firehose_role.name
     policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
 }
 
+# Create p4o-glue role for glue
 resource "aws_iam_role" "glue_role" {
   name = "p4o-glue"
   assume_role_policy = <<EOF
@@ -138,11 +152,13 @@ resource "aws_iam_role" "glue_role" {
 EOF
 }
 
+# Attach AWS managed policy AWSGlueServiceRole to p4o-glue role
 resource "aws_iam_role_policy_attachment" "glue_service" {
     role = "${aws_iam_role.glue_role.id}"
     policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
 }
 
+# Attach inline policy to p4o-glue role
 resource "aws_iam_role_policy" "my_s3_policy" {
   name = "p4o-glue-s3"
   role = "${aws_iam_role.glue_role.id}"
@@ -165,9 +181,11 @@ resource "aws_iam_role_policy" "my_s3_policy" {
 EOF
 }
 
+# data for get aws account id
 data "aws_caller_identity" "current" {}
 
 # In according to https://github.com/hashicorp/terraform-provider-aws/issues/13625
+# Create lambda permission for api gateway
 resource "aws_lambda_permission" "apigw_permission" {
   # count = var.grant_lambda_for_apigw ? 1 : 0
   statement_id  = "AllowExecutionFromAPIGateway"
@@ -181,6 +199,9 @@ resource "aws_lambda_permission" "apigw_permission" {
   source_arn = "arn:aws:execute-api:ap-southeast-1:${data.aws_caller_identity.current.account_id}:${module.api_gateway.apigatewayv2_api_id}/*"
 }
 
+############ Create all SQS resources ##############
+
+# Create Dead-letter Queue for user queue below
 module "user_dlq" {
   source  = "terraform-aws-modules/sqs/aws"
   version = "~> 2.0"
@@ -194,6 +215,7 @@ module "user_dlq" {
   }
 }
 
+# Create user queue
 module "user_queue" {
   source  = "terraform-aws-modules/sqs/aws"
   version = "~> 2.0"
@@ -201,7 +223,7 @@ module "user_queue" {
   name = "demo-queue"
   create = var.create_sqs
   redrive_policy = jsonencode({
-    deadLetterTargetArn = "${module.user_dlq.this_sqs_queue_arn}"
+    deadLetterTargetArn = "${module.user_dlq.this_sqs_queue_arn}" // refer to Dead-letter Queue
     maxReceiveCount = 3
   })
 
@@ -211,6 +233,9 @@ module "user_queue" {
   }
 }
 
+############ Create all Lambda resources ##############
+
+# Create lambda function for producer
 module "lambda_function_produce_sqs" {
   source = "terraform-aws-modules/lambda/aws"
 
@@ -226,19 +251,13 @@ module "lambda_function_produce_sqs" {
   lambda_role = "${aws_iam_role.lambda_producer_role.arn}"
 
   attach_policy_json = true
-
-  # allowed_triggers = {
-  #   APIGatewayAny = {
-  #     service    = "apigateway"
-  #     source_arn = "arn:aws:execute-api:ap-southeast-1:125065023022:${var.apigw_id}/*/*/*"
-  #   }
-  # }
-
+  
   tags = {
     Name = "publish-message-lambda"
   }
 }
 
+# Create lambda function for consumer
 module "lambda_function_consume_sqs" {
   source = "terraform-aws-modules/lambda/aws"
 
@@ -260,15 +279,20 @@ module "lambda_function_consume_sqs" {
   }
 }
 
+# map consumer lambda function with Dead-letter Queue
 resource "aws_lambda_event_source_mapping" "dlq_consumer" {
   event_source_arn = "${module.user_dlq.this_sqs_queue_arn}"
   function_name    = "${module.lambda_function_consume_sqs.lambda_function_arn}"
 }
 
+############ Create all API Gateway resources ##############
+
+# Create log group in Cloudwatch for api gateway below
 resource "aws_cloudwatch_log_group" "apigw_log_group" {
   name = "/aws/apigw/accesslog"
 }
 
+# Create api gateway
 module "api_gateway" {
   source = "terraform-aws-modules/apigateway-v2/aws"
 
@@ -298,23 +322,13 @@ module "api_gateway" {
       lambda_arn             = "${module.lambda_function_produce_sqs.lambda_function_arn}"
       payload_format_version = "2.0"
       timeout_milliseconds   = 12000
-      # credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw"
-      # authorization_type = "AWS_IAM"
     }
 
     "ANY /success" = {
       lambda_arn             = "${module.lambda_function_produce_sqs.lambda_function_arn}"
       payload_format_version = "2.0"
       timeout_milliseconds   = 12000
-      # credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw"
-      # authorization_type = "AWS_IAM"
     }
-
-    # "$default" = {
-      # lambda_arn = "${module.lambda_function.lambda_function_arn}"
-      # credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw-lambda"
-      # authorization_type = "AWS_IAM"
-    # }
   }
 
   tags = {
@@ -322,11 +336,15 @@ module "api_gateway" {
   }
 }
 
+############ Create all Kinesis resources ##############
+
+# Create s3 bucket for storing output from kinesis firehose
 resource "aws_s3_bucket" "bucket" {
   bucket = "p4o-s3-bucket"
   acl    = "private"
 }
 
+# Create kinesis firehose as a Delivery Stream
 resource "aws_kinesis_firehose_delivery_stream" "test_stream" {
   name        = "terraform-kinesis-firehose-test-stream"
   destination = "s3"
@@ -337,10 +355,14 @@ resource "aws_kinesis_firehose_delivery_stream" "test_stream" {
   }
 }
 
+############ Create all Glue resources ##############
+
+# Create glue catalog database for glue crawler below
 resource "aws_glue_catalog_database" "aws_glue_catalog_database" {
   name = "my-glue-catalog-database"
 }
 
+# Create glue crawler for reading from s3
 resource "aws_glue_crawler" "glue_crawler_example" {
   database_name = aws_glue_catalog_database.aws_glue_catalog_database.name
   name          = "my-glue-crawler"
