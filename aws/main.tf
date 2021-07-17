@@ -143,6 +143,28 @@ resource "aws_iam_role_policy_attachment" "glue_service" {
     policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
 }
 
+resource "aws_iam_role_policy" "my_s3_policy" {
+  name = "p4o-glue-s3"
+  role = "${aws_iam_role.glue_role.id}"
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:*"
+      ],
+      "Resource": [
+        "arn:aws:s3:::p4o-s3-bucket",
+        "arn:aws:s3:::p4o-s3-bucket/*"
+      ]
+    }
+  ]
+}
+EOF
+}
+
 data "aws_caller_identity" "current" {}
 
 # In according to https://github.com/hashicorp/terraform-provider-aws/issues/13625
