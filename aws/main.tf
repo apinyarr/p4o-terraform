@@ -215,7 +215,7 @@ module "lambda_function_consume_sqs" {
 }
 
 resource "aws_lambda_event_source_mapping" "dlq_consumer" {
-  event_source_arn = "${module.user_dlq.sqs_queue_arn}"
+  event_source_arn = "${module.user_dlq.this_sqs_queue_arn}"
   function_name    = "${module.lambda_function_consume_sqs.lambda_function_arn}"
 }
 
