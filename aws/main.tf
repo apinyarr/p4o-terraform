@@ -57,6 +57,31 @@ resource "aws_iam_role_policy_attachment" "apigw_log_attachment" {
     policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+resource "aws_iam_role" "firehose_role" {
+  name = "p4o-firehose"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "firehose.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "firehose_policy_attachment" {
+    role = aws_iam_role.firehose_role.name
+    policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+}
+
 data "aws_caller_identity" "current" {}
 
 # In according to https://github.com/hashicorp/terraform-provider-aws/issues/13625
@@ -186,5 +211,20 @@ module "api_gateway" {
 
   tags = {
     Name = "http-apigateway"
+  }
+}
+
+resource "aws_s3_bucket" "bucket" {
+  bucket = "p4o-s3-bucket"
+  acl    = "private"
+}
+
+resource "aws_kinesis_firehose_delivery_stream" "test_stream" {
+  name        = "terraform-kinesis-firehose-test-stream"
+  destination = "s3"
+
+  s3_configuration {
+    role_arn   = aws_iam_role.firehose_role.arn
+    bucket_arn = aws_s3_bucket.bucket.arn
   }
 }
