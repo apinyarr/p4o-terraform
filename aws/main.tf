@@ -59,7 +59,7 @@ resource "aws_iam_role_policy_attachment" "apigw_log_attachment" {
 
 # In according to https://github.com/hashicorp/terraform-provider-aws/issues/13625
 resource "aws_lambda_permission" "apigw_permission" {
-  count = var.grant_lambda_for_apigw ? 1 : 0
+  # count = var.grant_lambda_for_apigw ? 1 : 0
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
   function_name = "publish-messages-function" // add a reference to your function name here
