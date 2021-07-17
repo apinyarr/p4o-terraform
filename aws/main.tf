@@ -57,6 +57,8 @@ resource "aws_iam_role_policy_attachment" "apigw_log_attachment" {
     policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+data "aws_caller_identity" "current" {}
+
 # In according to https://github.com/hashicorp/terraform-provider-aws/issues/13625
 resource "aws_lambda_permission" "apigw_permission" {
   # count = var.grant_lambda_for_apigw ? 1 : 0
