@@ -13,7 +13,11 @@ def lambda_handler(event, context):
         response = queue.send_message(MessageBody=json.dumps(event))
         response = queue.send_message(MessageBody=json.dumps(event))
         sqs2 = boto3.client('sqs')
-        queue_url = 'https://sqs.ap-southeast-1.amazonaws.com/125065023022/demo-queue'
+        # queue_url = 'https://sqs.ap-southeast-1.amazonaws.com/125065023022/demo-queue'
+        queue_url = sqs2.get_queue_url(
+            QueueName='demo-queue',
+            QueueOwnerAWSAccountId=boto3.client('sts').get_caller_identity()['Account']
+        )['QueueUrl']
         # Receive message from SQS queue
         response = sqs2.receive_message(
             QueueUrl=queue_url,
