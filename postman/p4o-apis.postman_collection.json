@@ -1,0 +1,52 @@
+{
+	"info": {
+		"_postman_id": "580cf000-ee53-4a9a-bb66-d1e9d161ba52",
+		"name": "p4o-apis",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "p4o-api-success",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"messageVersion\": \"1.0\",\r\n  \"invocationSource\": \"DialogCodeHook\",\r\n  \"userId\": \"John\",\r\n  \"sessionAttributes\": {},\r\n  \"bot\": {\r\n    \"name\": \"BookTrip\",\r\n    \"alias\": \"$LATEST\",\r\n    \"version\": \"$LATEST\"\r\n  },\r\n  \"outputDialogMode\": \"Text\",\r\n  \"currentIntent\": {\r\n    \"name\": \"BookCar\",\r\n    \"slots\": {\r\n      \"PickUpCity\": \"Chicago\",\r\n      \"PickUpDate\": \"2030-11-08\",\r\n      \"ReturnDate\": \"2030-11-08\",\r\n      \"CarType\": \"economy\",\r\n      \"DriverAge\": 21\r\n    },\r\n    \"confirmationStatus\": \"None\"\r\n  }\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{apigw_url}}/success",
+					"host": [
+						"{{apigw_url}}"
+					],
+					"path": [
+						"success"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "p4o-api-failure",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{apigw_url}}/failure",
+					"host": [
+						"{{apigw_url}}"
+					],
+					"path": [
+						"failure"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

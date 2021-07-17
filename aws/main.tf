@@ -1,108 +1,185 @@
-# module "vpc" {
-#   source = "terraform-aws-modules/vpc/aws"
+resource "aws_iam_role" "lambda_producer_role" {
+  name = "p4o-lambda-producer"
 
-#   name = "pamelo-vpc"
-#   cidr = "10.0.0.0/16"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": [
+          "lambda.amazonaws.com"
+        ]
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
 
-#   azs             = ["ap-southeast-1a"]
-#   private_subnets = ["10.0.1.0/24"]
-#   public_subnets  = ["10.0.101.0/24"]
+resource "aws_iam_role_policy_attachment" "lambda_log_attachment" {
+    role = "${aws_iam_role.lambda_producer_role.name}"
+    policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
 
-#   enable_dns_hostnames = true
-#   enable_dns_support = true
-#   create_igw = false
+resource "aws_iam_role_policy_attachment" "lambda_producer_attachment" {
+    role = "${aws_iam_role.lambda_producer_role.name}"
+    policy_arn = "arn:aws:iam::aws:policy/AmazonSQSFullAccess"
+}
 
-#   tags = {
-#     Terraform = "true"
-#     Environment = "prd"
-#   }
-# }
+resource "aws_iam_role" "lambda_consumer_role" {
+  name = "p4o-lambda-consumer"
 
-# resource "aws_iam_role" "p4o_role" {
-#   name = "p4o-lambda-sqs-cloudwatch"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": [
+          "lambda.amazonaws.com"
+        ]
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
 
-#   # Terraform's "jsonencode" function converts a
-#   # Terraform expression result to valid JSON syntax.
-#   assume_role_policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [
-#       {
-#         "Action": [
-#             "sqs:*"
-#         ],
-#         "Effect": "Allow",
-#         "Resource": "*"
-#       },
-#       {
-#         "Effect": "Allow",
-#         "Action": [
-#             "logs:CreateLogGroup",
-#             "logs:CreateLogStream",
-#             "logs:PutLogEvents"
-#         ],
-#         "Resource": "*"
-#       }
-#     ]
-#   })
+resource "aws_iam_role_policy_attachment" "lambda2_log_attachment" {
+    role = "${aws_iam_role.lambda_consumer_role.name}"
+    policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
 
-#   tags = {
-#     tag-key = "tag-value"
-#   }
-# }
+resource "aws_iam_role_policy_attachment" "lambda_consumer_attachment" {
+    role = "${aws_iam_role.lambda_consumer_role.name}"
+    policy_arn = "arn:aws:iam::aws:policy/AmazonSQSFullAccess"
+}
 
-# resource "aws_iam_role" "p4o_sqs_role" {
-#   name = "p4o-lambda-sqs"
+resource "aws_iam_role_policy_attachment" "lambda_firehose_attachment" {
+    role = "${aws_iam_role.lambda_consumer_role.name}"
+    policy_arn = "arn:aws:iam::aws:policy/AmazonKinesisFirehoseFullAccess"
+}
 
-#   assume_role_policy = <<EOF
-# {
-#   "Version": "2012-10-17",
-#   "Statement": [
-#     {
-#       "Sid": "",
-#       "Effect": "Allow",
-#       "Principal": {
-#         "Service": [
-#           "sqs.amazonaws.com"
-#         ]
-#       },
-#       "Action": "sts:AssumeRole"
-#     }
-#   ]
-# }
-# EOF
-# }
+resource "aws_iam_role" "apigw_lambda_role" {
+  name = "p4o-apigw"
 
-# resource "aws_iam_role" "p4o_lambda_role" {
-#   name = "p4o-lambda-cloudwatch"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": [
+          "lambda.amazonaws.com"
+        ]
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
 
-#   assume_role_policy = <<EOF
-# {
-#   "Version": "2012-10-17",
-#   "Statement": [
-#     {
-#       "Sid": "",
-#       "Effect": "Allow",
-#       "Principal": {
-#         "Service": [
-#           "lambda.amazonaws.com"
-#         ]
-#       },
-#       "Action": "sts:AssumeRole"
-#     }
-#   ]
-# }
-# EOF
-# }
+resource "aws_iam_role_policy_attachment" "apigw_log_attachment" {
+    role = "${aws_iam_role.apigw_lambda_role.name}"
+    policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
 
-# resource "aws_iam_role_policy_attachment" "sqs_policy_attachment" {
-#     role = "${aws_iam_role.p4o_sqs_role.name}"
-#     policy_arn = "arn:aws:iam::aws:policy/AmazonSQSFullAccess"
-# }
+resource "aws_iam_role" "firehose_role" {
+  name = "p4o-firehose"
 
-# resource "aws_iam_role_policy_attachment" "lambda_policy_attachment" {
-#     role = "${aws_iam_role.p4o_lambda_role.name}"
-#     policy_arn = "arn:aws:iam::aws:policy/AWSLambdaBasicExecutionRole"
-# }
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "firehose.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "firehose_policy_attachment" {
+    role = aws_iam_role.firehose_role.name
+    policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+}
+
+resource "aws_iam_role" "glue_role" {
+  name = "p4o-glue"
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "glue.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "glue_service" {
+    role = "${aws_iam_role.glue_role.id}"
+    policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
+}
+
+resource "aws_iam_role_policy" "my_s3_policy" {
+  name = "p4o-glue-s3"
+  role = "${aws_iam_role.glue_role.id}"
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:*"
+      ],
+      "Resource": [
+        "arn:aws:s3:::p4o-s3-bucket",
+        "arn:aws:s3:::p4o-s3-bucket/*"
+      ]
+    }
+  ]
+}
+EOF
+}
+
+data "aws_caller_identity" "current" {}
+
+# In according to https://github.com/hashicorp/terraform-provider-aws/issues/13625
+resource "aws_lambda_permission" "apigw_permission" {
+  # count = var.grant_lambda_for_apigw ? 1 : 0
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = "publish-messages-function" // add a reference to your function name here
+  principal     = "apigateway.amazonaws.com"
+
+  # The /*/*/* part allows invocation from any stage, method and resource path
+  # within API Gateway REST API. the last one indicates where to send requests to.
+  # see more detail https://docs.aws.amazon.com/lambda/latest/dg/services-apigateway.html
+  source_arn = "arn:aws:execute-api:ap-southeast-1:${data.aws_caller_identity.current.account_id}:${module.api_gateway.apigatewayv2_api_id}/*"
+}
 
 module "user_dlq" {
   source  = "terraform-aws-modules/sqs/aws"
@@ -146,8 +223,7 @@ module "lambda_function_produce_sqs" {
 
   source_path = "src/python/publish-message-function/message.py"
   create_role = false
-  lambda_role = "arn:aws:iam::125065023022:role/p4o-lambda-sqs-cloudwatch"
-  # lambda_role = "${aws_iam_role.p4o_sqs_role.arn}"
+  lambda_role = "${aws_iam_role.lambda_producer_role.arn}"
 
   attach_policy_json = true
 
@@ -161,6 +237,36 @@ module "lambda_function_produce_sqs" {
   tags = {
     Name = "publish-message-lambda"
   }
+}
+
+module "lambda_function_consume_sqs" {
+  source = "terraform-aws-modules/lambda/aws"
+
+  function_name = "consume-messages-function"
+  description   = "Consume message from SQS"
+  handler       = "process.lambda_handler"
+  runtime       = "python3.8"
+
+  create = var.create_lambda2
+
+  source_path = "src/python/consume-message-function/process.py"
+  create_role = false
+  lambda_role = "${aws_iam_role.lambda_consumer_role.arn}"
+
+  attach_policy_json = true
+
+  tags = {
+    Name = "consume-message-lambda"
+  }
+}
+
+resource "aws_lambda_event_source_mapping" "dlq_consumer" {
+  event_source_arn = "${module.user_dlq.this_sqs_queue_arn}"
+  function_name    = "${module.lambda_function_consume_sqs.lambda_function_arn}"
+}
+
+resource "aws_cloudwatch_log_group" "apigw_log_group" {
+  name = "/aws/apigw/accesslog"
 }
 
 module "api_gateway" {
@@ -192,7 +298,7 @@ module "api_gateway" {
       lambda_arn             = "${module.lambda_function_produce_sqs.lambda_function_arn}"
       payload_format_version = "2.0"
       timeout_milliseconds   = 12000
-      # credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw-lambda"
+      # credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw"
       # authorization_type = "AWS_IAM"
     }
 
@@ -200,7 +306,7 @@ module "api_gateway" {
       lambda_arn             = "${module.lambda_function_produce_sqs.lambda_function_arn}"
       payload_format_version = "2.0"
       timeout_milliseconds   = 12000
-      # credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw-lambda"
+      # credentials_arn = "arn:aws:iam::125065023022:role/p4o-apigw"
       # authorization_type = "AWS_IAM"
     }
 
@@ -216,91 +322,9 @@ module "api_gateway" {
   }
 }
 
-module "lambda_function_consume_sqs" {
-  source = "terraform-aws-modules/lambda/aws"
-
-  function_name = "consume-messages-function"
-  description   = "Consume message from SQS"
-  handler       = "process.lambda_handler"
-  runtime       = "python3.8"
-
-  create = var.create_lambda2
-
-  source_path = "src/python/consume-message-function/process.py"
-  create_role = false
-  lambda_role = "arn:aws:iam::125065023022:role/p4o-lambda-sqs-cloudwatch"
-  # lambda_role = "${aws_iam_role.p4o_lambda_role.arn}"
-
-  attach_policy_json = true
-
-  tags = {
-    Name = "consume-message-lambda"
-  }
-}
-
-# In according to https://github.com/hashicorp/terraform-provider-aws/issues/13625
-resource "aws_lambda_permission" "apigw_permission" {
-  count = var.grant_lambda_for_apigw ? 1 : 0
-  statement_id  = "AllowExecutionFromAPIGateway"
-  action        = "lambda:InvokeFunction"
-  function_name = "publish-messages-function" // add a reference to your function name here
-  principal     = "apigateway.amazonaws.com"
-
-  # The /*/*/* part allows invocation from any stage, method and resource path
-  # within API Gateway REST API. the last one indicates where to send requests to.
-  # see more detail https://docs.aws.amazon.com/lambda/latest/dg/services-apigateway.html
-  source_arn = "arn:aws:execute-api:ap-southeast-1:125065023022:${var.apigw_id}/*"
-}
-
-resource "aws_lambda_event_source_mapping" "dlq_consumer" {
-  count = var.create_event_source_mapping ? 1 : 0
-  event_source_arn = var.source_sqs_arn //aws_sqs_queue.sqs_queue_test.arn
-  function_name    = var.lambda_function_arn //aws_lambda_function.example.arn
-}
-
-# resource "aws_kinesis_stream" "test_stream" {
-#   name             = "terraform-kinesis-test"
-#   shard_count      = 1
-#   retention_period = 24
-
-#   shard_level_metrics = [
-#     "IncomingBytes",
-#     "OutgoingBytes",
-#   ]
-
-#   tags = {
-#     Environment = "test"
-#   }
-# }
-
 resource "aws_s3_bucket" "bucket" {
   bucket = "p4o-s3-bucket"
   acl    = "private"
-}
-
-resource "aws_iam_role" "firehose_role" {
-  name = "p4o-firehose"
-
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "firehose.amazonaws.com"
-      },
-      "Effect": "Allow",
-      "Sid": ""
-    }
-  ]
-}
-EOF
-}
-
-resource "aws_iam_role_policy_attachment" "firehose_policy_attachment" {
-    role = aws_iam_role.firehose_role.name
-    policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
 }
 
 resource "aws_kinesis_firehose_delivery_stream" "test_stream" {
@@ -317,68 +341,17 @@ resource "aws_glue_catalog_database" "aws_glue_catalog_database" {
   name = "my-glue-catalog-database"
 }
 
-resource "aws_glue_crawler" "example" {
+resource "aws_glue_crawler" "glue_crawler_example" {
   database_name = aws_glue_catalog_database.aws_glue_catalog_database.name
   name          = "my-glue-crawler"
-  role          = aws_iam_role.glue.arn
+  role          = aws_iam_role.glue_role.arn
 
   s3_target {
     path = "s3://${aws_s3_bucket.bucket.bucket}"
   }
 
-  provisioner "local-exec" {
-    command = "aws glue start-crawler --name ${self.name}"
-  }
-}
-
-resource "aws_iam_role" "glue" {
-  name = "AWSGlueServiceRoleDefault"
-  assume_role_policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Action": "sts:AssumeRole",
-      "Principal": {
-        "Service": "glue.amazonaws.com"
-      },
-      "Effect": "Allow",
-      "Sid": ""
-    }
-  ]
-}
-EOF
-}
-
-resource "aws_iam_role_policy_attachment" "glue_service" {
-    role = "${aws_iam_role.glue.id}"
-    policy_arn = "arn:aws:iam::aws:policy/service-role/AWSGlueServiceRole"
-}
-
-resource "aws_iam_role_policy" "my_s3_policy" {
-  name = "my_s3_policy"
-  role = "${aws_iam_role.glue.id}"
-  policy = <<EOF
-{
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Effect": "Allow",
-      "Action": [
-        "s3:*"
-      ],
-      "Resource": [
-        "arn:aws:s3:::p4o-s3-bucket",
-        "arn:aws:s3:::p4o-s3-bucket/*"
-      ]
-    }
-  ]
-}
-EOF
-}
-
-resource "aws_iam_role_policy" "glue_service_s3" {
-  name = "glue_service_s3"
-  role = "${aws_iam_role.glue.id}"
-  policy = "${aws_iam_role_policy.my_s3_policy.policy}"
+  # provisioner "local-exec" {
+  #   command = "aws glue start-crawler --name ${self.name}"
+  # }
+  schedule = "cron(5 * * * ? *)"
 }
