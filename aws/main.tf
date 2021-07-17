@@ -353,5 +353,5 @@ resource "aws_glue_crawler" "glue_crawler_example" {
   # provisioner "local-exec" {
   #   command = "aws glue start-crawler --name ${self.name}"
   # }
-  schedule = cron(5 * * * ? *)
+  schedule = "cron(5 * * * ? *)"
 }
