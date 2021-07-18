@@ -95,16 +95,22 @@
 
 | apigw_url | https://osgm1cwg99.execute-api.ap-southeast-1.amazonaws.com | https://osgm1cwg99.execute-api.ap-southeast-1.amazonaws.com |
 
-4. Select **p4o-api-success** under p4o-apis in the Collections menu and click Send
+*caution* remove '/' after the url, if any
+
+4. Select **p4o-api-success** under p4o-apis in the Collections menu and click Send (please ensure that you have chosen "aws-api-caller" environment)
 
 *result*
 > /success
 
 *Consequent* Log will be create in CloudWatch, producer function lambda has been run, message has been write to the demo-queue
 
-5. Select **p4o-api-failure** under p4o-apis in the Collections menu and clide Send
+5. Select **p4o-api-failure** under p4o-apis in the Collections menu and click Send
 
 *result*
 > /failure
 
 *Consequent* Log will be create in CloudWatch, producer function lambda has been run, message has been write to the demo-queue, massage has been moved to dlq-queue because messages more than MaxRecieveCount, consumer function lambda read messages and write to kinesis firehose delivery stream, message write to s3, glue crawler run to create catalog database once triggered
+
+*Remark* 
+- It takes several minutes until Firehose write payloads to S3.
+- Crawler will run at 5 minutes after past the hour.
